@@ -4,6 +4,9 @@ wlist = open('watchlist.txt', 'r')
 stocks = wlist.readlines()
 output = open('output.txt', 'w')
 
+GreedLimiter = 0.05 #limiter for ROC
+Collatlimiter = 20000 #limiter for collat
+
 for stock in stocks:
     stock = stock.strip('\n')
     response = requests.get('https://sandbox.tradier.com/v1/markets/options/chains',
@@ -39,12 +42,13 @@ for stock in stocks:
                     Llast = opt_response['options']['option'][j]['ask']
                     premium = abs(olast - Llast) * 100
                     ROC = premium / collat
-                    if otype == "put" and strike < lastq and dstrike > 0:
-                        a = opt_response['options']['option'][i]['description']
-                        b = opt_response['options']['option'][j]['description']
-                        output.write("PCS: " + str(a) + " " + str(b) + " " + str(dtheta) + " Collat: " + str(collat) + " Premium: " + str(premium) + " ROC: " + str(ROC) + "\n")
-                    elif otype == "call" and strike > lastq and dstrike < 0:
-                        a = opt_response['options']['option'][i]['description']
-                        b = opt_response['options']['option'][j]['description']
-                        output.write("CCS: " + str(a) + " " + str(b) + " " + str(dtheta) + " Collat: " + str(collat) + " Premium: " + str(premium) + " ROC: " + str(ROC) + "\n")
+                    if ROC >= GreedLimiter and collat <= Collatlimiter:
+                        if otype == "put" and strike < lastq and dstrike > 0:
+                            a = opt_response['options']['option'][i]['description']
+                            b = opt_response['options']['option'][j]['description']
+                            output.write("PCS: " + str(a) + " " + str(b) + " " + str(dtheta) + " Collat: " + str(collat) + " Premium: " + str(premium) + " ROC: " + str(ROC) + "\n")
+                        elif otype == "call" and strike > lastq and dstrike < 0:
+                            a = opt_response['options']['option'][i]['description']
+                            b = opt_response['options']['option'][j]['description']
+                            output.write("CCS: " + str(a) + " " + str(b) + " " + str(dtheta) + " Collat: " + str(collat) + " Premium: " + str(premium) + " ROC: " + str(ROC) + "\n")
 print("done")
