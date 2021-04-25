@@ -4,8 +4,9 @@ wlist = open('watchlist.txt', 'r')
 stocks = wlist.readlines()
 output = open('output.txt', 'w')
 
-GreedLimiter = 0.05 #limiter for ROC
-Collatlimiter = 20000 #limiter for collat
+GreedLimiter = 0.03 #limiter for ROC
+Collatlimiter = 6000 #limiter for collat
+thetalimiter = -0.1
 
 for stock in stocks:
     stock = stock.strip('\n')
@@ -36,7 +37,7 @@ for stock in stocks:
                 Lstrike = opt_response['options']['option'][j]['strike']
                 dtheta = theta - Ltheta
                 dstrike = strike - Lstrike
-                if otype == Lotype and dtheta <= -0.3:
+                if otype == Lotype and dtheta <= thetalimiter:
                     collat = dstrike * 100
                     olast = opt_response['options']['option'][i]['bid']
                     Llast = opt_response['options']['option'][j]['ask']
@@ -46,9 +47,9 @@ for stock in stocks:
                         if otype == "put" and strike < lastq and dstrike > 0:
                             a = opt_response['options']['option'][i]['description']
                             b = opt_response['options']['option'][j]['description']
-                            output.write("PCS: " + str(a) + " " + str(b) + " " + str(dtheta) + " Collat: " + str(collat) + " Premium: " + str(premium) + " ROC: " + str(ROC) + "\n")
+                            output.write("PCS: " + str(a) + " " + str(b) + " theta: " + str(dtheta) + " Collat: " + str(collat) + " Premium: " + str(premium) + " ROC: " + str(ROC) + "\n")
                         elif otype == "call" and strike > lastq and dstrike < 0:
                             a = opt_response['options']['option'][i]['description']
                             b = opt_response['options']['option'][j]['description']
-                            output.write("CCS: " + str(a) + " " + str(b) + " " + str(dtheta) + " Collat: " + str(collat) + " Premium: " + str(premium) + " ROC: " + str(ROC) + "\n")
+                            output.write("CCS: " + str(a) + " " + str(b) + " theta: " + str(dtheta) + " Collat: " + str(collat) + " Premium: " + str(premium) + " ROC: " + str(ROC) + "\n")
 print("done")
