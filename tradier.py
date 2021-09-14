@@ -20,7 +20,7 @@ for date in dates:
         )
         opt_response = response.json()
         if response.status_code != 200:
-            print("oh fuck error here on " + stock + " options")
+            print("oh error here on " + stock + " options")
         if opt_response is None or opt_response['options'] is None:
             print("No option chain on " + date)
         else:
@@ -30,7 +30,7 @@ for date in dates:
             )
             q_response = qresponse.json()
             if qresponse.status_code != 200:
-                print("oh fuck error here on " + stock + " quote")
+                print("oh error here on " + stock + " quote")
             lastq = q_response['quotes']['quote']['last']
             for i in range(len(opt_response['options']['option'])):
                 theta = opt_response['options']['option'][i]['greeks']['theta']
